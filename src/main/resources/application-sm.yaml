@@ -1,0 +1,28 @@
+zeebe:
+  client:
+    broker:
+      gatewayAddress: "ZEEBE_GATEWAY_HOST:443"
+    security:
+      plaintext: false
+    cloud:
+      client-id: "zeebe"
+      client-secret: "ZEEBE_CLIENT_SECRET"
+      auth-url: "https://KEYCLOAK_HOST:443/auth/realms/camunda-platform/protocol/openid-connect/token"
+tasklist:
+  client:
+    authorizationUrl: "https://KEYCLOAK_HOST/auth/realms/camunda-platform/protocol/openid-connect/token"
+    clientId: "TASKLIST_CLIENT_ID"
+    clientSecret: "TASKLIST_CLIENT_SECRET"
+    contentType: "application/x-www-form-urlencoded"
+    taskListBaseUrl: "https://TASKLIST_HOST/tasklist"
+    audience: "tasklist.camunda.io"
+operate:
+  client:
+    authorizationUrl: "https://KEYCLOAK_HOST/auth/realms/camunda-platform/protocol/openid-connect/token"
+    clientId: "OPERATE_CLIENT_ID"
+    clientSecret: "OPERATE_CLIENT_SECRET"
+    contentType: "application/x-www-form-urlencoded"
+    operateBaseUrl: "https://OPERATE_HOST/operate"
+    audience: "operate.camunda.io"
+server:
+  port: 8087

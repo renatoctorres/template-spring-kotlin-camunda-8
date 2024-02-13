@@ -1,0 +1,12 @@
+zeebe:
+  client:
+    broker:
+      gatewayAddress: "localhost:26500"
+    security:
+      plaintext: true
+    cloud:
+      client-id: "zeebe"
+      client-secret: "ZEEBE_CLIENT_SECRET"
+      auth-url: "http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/token"
+server:
+  port: 8087

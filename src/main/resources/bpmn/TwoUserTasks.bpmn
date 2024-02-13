@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0xvgos6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.15.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.2.0">
+  <bpmn:process id="Process_twoUserTasks" name="Two User Tasks" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:userTaskForm id="userTaskForm_1jg5g4h">{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "Orange",
+          "value": "orange"
+        },
+        {
+          "label": "Blue",
+          "value": "blue"
+        },
+        {
+          "label": "Red",
+          "value": "red"
+        },
+        {
+          "label": "Green",
+          "value": "green"
+        },
+        {
+          "label": "Purple",
+          "value": "purple"
+        },
+        {
+          "label": "Yellow",
+          "value": "yellow"
+        }
+      ],
+      "label": "What's your favorite Color?",
+      "type": "select",
+      "layout": {
+        "row": "Row_1omke3m",
+        "columns": null
+      },
+      "id": "Field_07v3dgr",
+      "key": "color",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "Form_0imseob",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.2.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.15.0"
+  },
+  "schemaVersion": 10
+}</zeebe:userTaskForm>
+      <zeebe:userTaskForm id="userTaskForm_128iguc">{
+  "components": [
+    {
+      "label": "What's your age?",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1aobhsk",
+        "columns": null
+      },
+      "id": "Field_11w2yxe",
+      "key": "age"
+    }
+  ],
+  "type": "default",
+  "id": "Form_048v4ub",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.2.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.15.0"
+  },
+  "schemaVersion": 10
+}</zeebe:userTaskForm>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0quxukf</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0quxukf" sourceRef="StartEvent_1" targetRef="chooseFavoriteColor" />
+    <bpmn:userTask id="chooseFavoriteColor" name="Choose Favorite Color">
+      <bpmn:extensionElements>
+        <zeebe:assignmentDefinition assignee="=userName" />
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_1jg5g4h" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0quxukf</bpmn:incoming>
+      <bpmn:outgoing>Flow_06doh0j</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_06doh0j" sourceRef="chooseFavoriteColor" targetRef="selectAge" />
+    <bpmn:userTask id="selectAge" name="Select Age">
+      <bpmn:extensionElements>
+        <zeebe:assignmentDefinition assignee="=userName" />
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_128iguc" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06doh0j</bpmn:incoming>
+      <bpmn:outgoing>Flow_04j9tbo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0u72w6y">
+      <bpmn:incoming>Flow_04j9tbo</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_04j9tbo" sourceRef="selectAge" targetRef="Event_0u72w6y" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_twoUserTasks">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nk8x5j_di" bpmnElement="chooseFavoriteColor">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bvai4w_di" bpmnElement="selectAge">
+        <dc:Bounds x="430" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0u72w6y_di" bpmnElement="Event_0u72w6y">
+        <dc:Bounds x="592" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0quxukf_di" bpmnElement="Flow_0quxukf">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06doh0j_di" bpmnElement="Flow_06doh0j">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="430" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04j9tbo_di" bpmnElement="Flow_04j9tbo">
+        <di:waypoint x="530" y="117" />
+        <di:waypoint x="592" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
