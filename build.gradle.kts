@@ -1,31 +1,37 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.2.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.5"
-    id("io.spring.dependency-management") version "1.1.4"
-    id("java")
-    id("application")
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    id("org.springframework.boot") version "3.5.6"
+    id("dev.detekt") version "2.0.0-alpha.0"
+    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    java
+    application
+    kotlin("jvm") version "2.2.10"
+    kotlin("plugin.spring") version "2.2.10"
 }
 
-group = "io.camunda"
-version = "8.4.0"
+group = "io.rct.camunda"
+version = "1.0.0"
 description = "Camunda 8 - Kotlin and Spring Boot Template - Zeebe Client"
-java.sourceCompatibility = JavaVersion.VERSION_19
 
-val camundaVersion = "8.4.0"
-val camundaTasklistVersion = "8.4.0"
-val camundaOperateVersion = "8.3.0"
-val springBootStarterCamundaVersion = "8.4.0"
-val springBootVersion = "3.2.2"
-val springDocOpenApiVersion = "2.3.0"
+val camundaVersion = "8.8.0"
+val camundaOperateVersion = "8.3.0.1"
+val kotlinVersion = "2.2.10"
+val jacksonModuleKotlinVersion = "3.0.0"
+val springBootStarterCamundaVersion = "8.5.22"
+val springBootVersion = "3.5.6"
+val springDocOpenApiVersion = "3.0.0-M1"
 
-val springCoreVersion = "6.1.3"
-val sl4jVersion = "2.0.12"
-val logbackVersion = "1.4.14"
-val detektVersion = "1.23.5"
+val springCoreVersion = "7.0.0-RC1"
+val sl4jVersion = "2.0.17"
+val logbackVersion = "1.5.19"
+val detektVersion = "2.0.0-alpha.0"
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
 
 repositories {
     mavenCentral()
@@ -38,12 +44,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("io.camunda:zeebe-client-java:${camundaVersion}")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.camunda.spring:spring-boot-starter-camunda:${springBootStarterCamundaVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    implementation("tools.jackson.module:jackson-module-kotlin:${jacksonModuleKotlinVersion}")
+    implementation("io.camunda:camunda-spring-boot-starter:${camundaVersion}")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocOpenApiVersion}")
     implementation("org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}")
-    implementation("io.camunda:camunda-tasklist-client-java:${camundaTasklistVersion}")
+    implementation("io.camunda:camunda-tasklist-client-java:${camundaVersion}")
     implementation("io.camunda:camunda-operate-client-java:${camundaOperateVersion}")
     implementation("org.slf4j:slf4j-api:${sl4jVersion}")
     implementation("ch.qos.logback:logback-core:${logbackVersion}")
@@ -55,37 +61,17 @@ dependencies {
 //    testImplementation(kotlin("test"))
 }
 
-apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.set(mutableListOf<String>("-Xjsr305=strict"))
+    }
+    jvmToolchain(24)
+}
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "19"
-        freeCompilerArgs += "-Xjsr305=strict"
+configurations.matching { it.name != "detekt" }.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion(kotlinVersion)
+        }
     }
 }
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-allOpen {
-    annotation("io.camunda")
-}
-
-detekt {
-    toolVersion = "1.23.5"
-    source.setFrom(files("src/main/kotlin"))
-    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-    parallel = true
-    buildUponDefaultConfig = true
-}
-
-kotlin {
-    jvmToolchain(19)
-}
-//

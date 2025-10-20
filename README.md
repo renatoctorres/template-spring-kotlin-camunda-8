@@ -8,6 +8,8 @@ first running example in your Self-managed installation of a Camunda 8 cluster.
 
 ![Kotlin](http://ForTheBadge.com/images/badges/made-with-kotlin.svg)
 ![Docker](https://forthebadge.com/images/badges/docker-container.svg)
+![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)
+![MIT](https://forthebadge.com/images/badges/license-mit.svg)
 
 ## Features
 
@@ -19,8 +21,8 @@ first running example in your Self-managed installation of a Camunda 8 cluster.
 
 ## Build the image
 
-```
-mvn clean spring-boot:build-image
+```bash
+  ./gradlew clean bootBuildImage
 ```
 
 Requirements: Docker daemon on the build computer
@@ -38,8 +40,8 @@ The application.yaml, that is included in the image, contains values for local
 development.
 
 ```
-zeebe.client.broker.gateway-address=localhost:26500
-zeebe.client.security.plaintext=true
+  zeebe.client.broker.gateway-address=localhost:26500
+  zeebe.client.security.plaintext=true
 ```
 
 Maybe you have to override the values in your cluster.
@@ -49,8 +51,8 @@ Maybe you have to override the values in your cluster.
 If you want to connect the container to a Camunda 8 cloud cluster, the docker
 command looks like this:
 
-```
-docker run -e ZEEBE_CLIENT_CLOUD_CLUSTERID -e ZEEBE_CLIENT_CLOUD_CLIENTID -e ZEEBE_CLIENT_CLOUD_CLIENTSECRET -e ZEEBE_CLIENT_CLOUD_REGION -e ZEEBE_CLIENT_SECURITY_PLAINTEXT -p 8080:8080 --name template-spring-kotlin-camunda template-spring-kotlin-camunda:8.4.0
+```bash
+  docker run -e ZEEBE_CLIENT_CLOUD_CLUSTERID -e ZEEBE_CLIENT_CLOUD_CLIENTID -e ZEEBE_CLIENT_CLOUD_CLIENTSECRET -e ZEEBE_CLIENT_CLOUD_REGION -e ZEEBE_CLIENT_SECURITY_PLAINTEXT -p 8080:8080 --name template-spring-kotlin-camunda template-spring-kotlin-camunda:8.4.0
 ```
 
 The environment variables were set in the shell before.
@@ -62,8 +64,8 @@ The environment variables were set in the shell before.
 If you want to connect to a Camunda 8 local cluster, the docker
 command looks like this:
 
-```
-docker-compose up -d
+```bash
+  docker-compose up -d
 ```
 
 ## Running
@@ -84,8 +86,8 @@ Conventions for this application:
 
 You can start a process instance with REST call as well:
 
-```
-curl -L "http://localhost:8080/start" -X "POST" -H "Content-Type: application/json" -d "{\"customerId\": \"cust50\", \"orderTotal\": 67.50, \"cardNumber\": \"1234 4567\", \"cvc\": \"123\", \"expiryDate\": \"12/24\"}"
+```bash
+  curl -L "http://localhost:8080/start" -X "POST" -H "Content-Type: application/json" -d "{\"customerId\": \"cust50\", \"orderTotal\": 67.50, \"cardNumber\": \"1234 4567\", \"cvc\": \"123\", \"expiryDate\": \"12/24\"}"
 ```
 ## BPMN Model
 
@@ -122,14 +124,25 @@ payment completed
 The application has integration with Gradle Detekt Plugin, Detekt helps to write cleaner 
 Kotlin code.
 
-```
-gradle detekt
+```bash
+  ./gradlew detekt
 ```
 
 ## Stacks
 <p style= "text-align: left;">
-  <img src="src/main/resources/img/camunda-logo.png" />
-  <img src="https://skillicons.dev/icons?i=kotlin,spring,gradle,docker,git,elasticsearch" />
-<img src="https://detekt.dev/img/home/detekt-logo.svg" width="48" height="48" alt="Detekt Plugin"/>
-<img src="https://www.vectorlogo.zone/logos/elasticco_kibana/elasticco_kibana-icon.svg" width="48" height="48" alt="Kibana"/>
+    <img src="src/main/resources/img/camunda-logo.png" />
+    <img src="https://skillicons.dev/icons?i=kotlin,spring,gradle,docker,git,elasticsearch" />
+    <img src="https://detekt.dev/img/home/detekt-logo.svg" width="48" height="48" alt="Detekt Plugin"/>
+    <img src="https://www.vectorlogo.zone/logos/elasticco_kibana/elasticco_kibana-icon.svg" width="48" height="48" alt="Kibana"/>
 </p>
+
+## 💻 Tech Stack
+
+| Tema                          | Tecnologias                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 🧠 **Languages**              | <div style="display: flex; gap: 8px; flex-wrap: wrap;"> <img src="https://skillicons.dev/icons?i=kotlin" alt="Kotlin"/> </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 🧩 **Frameworks & Libraries** | <div style="display: flex; gap: 8px; flex-wrap: wrap;"> <img src="https://skillicons.dev/icons?i=spring" alt="Spring Boot"/> <img src="https://icon.icepanel.io/Technology/svg/Jupyter.svg" width="48" height="48" alt="Jupyter"/> <img src="https://junit.org/junit5/assets/img/junit5-logo.png" height="48" alt="JUnit 5"/> <img src="https://skillicons.dev/icons?i=hibernate" alt="Hibernate"/>  <img src="https://icon.icepanel.io/Technology/svg/OpenAPI.svg" width="48" height="48" alt="OpenAPI"/> <img src="https://icon.icepanel.io/Technology/svg/Swagger.svg" width="48" height="48" alt="Swagger"/> <img src="https://icon.icepanel.io/Technology/svg/YAML.svg" width="48" height="48" alt="YAML"/> </div>                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 🧰 **Build & Dev Tools**      | <img src="https://skillicons.dev/icons?i=gradle" alt="Gradle"/> <img src="https://skillicons.dev/icons?i=git" alt="Git"/> <img src="https://skillicons.dev/icons?i=github" alt="Github"/> <img src="https://icon.icepanel.io/Technology/svg/Qodana.svg" width="48" height="48" alt="Qodana"/> </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 🧮 **Databases**              | <div style="display: flex; gap: 8px; flex-wrap: wrap;"> <img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL"/> <img src="https://skillicons.dev/icons?i=elasticsearch" alt="Elasticsearch"/> </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 🔐 **DevSecOps**              | <div style="display: flex; gap: 8px; flex-wrap: wrap;"> <img src="https://skillicons.dev/icons?i=docker" alt="Docker"/> <img src="https://skillicons.dev/icons?i=kubernetes" alt="Kubernetes"/> <img src="https://icon.icepanel.io/Technology/svg/Helm.svg" width="48" height="48" alt="Helm"/> <img src="https://detekt.dev/img/home/detekt-logo.svg" width="48" height="48" alt="Detekt"/> </div> |
+

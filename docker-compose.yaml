@@ -1,284 +1,115 @@
-# While the Docker images themselves are supported for production usage,
-# this docker-compose.yaml is designed to be used by developers to run
-# an environment locally. It is not designed to be used in production.
-# We recommend to use Kubernetes in production with our Helm Charts:
-# https://docs.camunda.io/docs/self-managed/platform-deployment/kubernetes-helm/
-# For local development, we recommend using KIND instead of `docker-compose`:
-# https://docs.camunda.io/docs/self-managed/platform-deployment/helm-kubernetes/guides/local-kubernetes-cluster/
-
-# This is a full configuration with Zeebe, Operate, Tasklist, Optimize, Identity, Keycloak, and Elasticsearch
-# See docker-compose-core.yml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
+version: "3.8"
 
 services:
-
-  zeebe: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
-    image: camunda/zeebe:${CAMUNDA_PLATFORM_VERSION:-8.4.0}
-    container_name: zeebe
-    ports:
-      - "26500:26500"
-      - "9600:9600"
-    environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://elasticsearch:9200
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
-      # allow running with low disk space
-      - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
-      - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
-      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
-    restart: always
-    volumes:
-      - zeebe:/usr/local/zeebe/data
-    networks:
-      - camunda-platform
-    depends_on:
-      - elasticsearch
-
-  operate: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#operate
-    image: camunda/operate:${CAMUNDA_PLATFORM_VERSION:-8.4.0}
-    container_name: operate
-    ports:
-      - "8081:8080"
-    environment: # https://docs.camunda.io/docs/self-managed/operate-deployment/configuration/
-      - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=zeebe:26500
-      - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://elasticsearch:9200
-      - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
-      # For more information regarding configuration with Identity see:
-      # https://docs.camunda.io/docs/self-managed/operate-deployment/authentication/#identity
-      - SPRING_PROFILES_ACTIVE=identity-auth
-      - CAMUNDA_OPERATE_IDENTITY_ISSUER_URL=http://localhost:18080/auth/realms/camunda-platform
-      - CAMUNDA_OPERATE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
-      - CAMUNDA_OPERATE_IDENTITY_CLIENTID=operate
-      - CAMUNDA_OPERATE_IDENTITY_CLIENTSECRET=Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      - CAMUNDA_OPERATE_IDENTITY_AUDIENCE=operate-api
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:18080/auth/realms/camunda-platform
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
-    networks:
-      - camunda-platform
-      - identity-network
-    depends_on:
-      - zeebe
-      - identity
-      - elasticsearch
-
-  tasklist: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#tasklist
-    image: camunda/tasklist:${CAMUNDA_PLATFORM_VERSION:-8.4.0}
-    container_name: tasklist
-    ports:
-      - "8082:8080"
-    environment: # https://docs.camunda.io/docs/self-managed/tasklist-deployment/configuration/
-      - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=zeebe:26500
-      - CAMUNDA_TASKLIST_ELASTICSEARCH_URL=http://elasticsearch:9200
-      - CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
-      # For more information regarding configuration with Identity see:
-      # https://docs.camunda.io/docs/self-managed/tasklist-deployment/authentication/#identity
-      - SPRING_PROFILES_ACTIVE=identity-auth
-      - CAMUNDA_TASKLIST_IDENTITY_ISSUER_URL=http://localhost:18080/auth/realms/camunda-platform
-      - CAMUNDA_TASKLIST_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
-      - CAMUNDA_TASKLIST_IDENTITY_CLIENTID=tasklist
-      - CAMUNDA_TASKLIST_IDENTITY_CLIENTSECRET=Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      - CAMUNDA_TASKLIST_IDENTITY_AUDIENCE=tasklist-api
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:18080/auth/realms/camunda-platform
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
-    networks:
-      - camunda-platform
-      - identity-network
-    depends_on:
-      - zeebe
-      - identity
-      - elasticsearch
-
-  connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
-    image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION:-8.4.3}
-    container_name: connectors
-    ports:
-      - "8085:8080"
+  orchestration:
+    image: camunda/camunda:${CAMUNDA_VERSION:-8.8.0}
+    container_name: camunda-orchestration
     environment:
-      - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
-      - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
-      - CAMUNDA_OPERATE_CLIENT_KEYCLOAK-URL=http://keycloak:8080
-      - CAMUNDA_OPERATE_CLIENT_CLIENT-ID=connectors
-      - CAMUNDA_OPERATE_CLIENT_CLIENT-SECRET=Y2FtdW5kYThjYW11bmRhOA==
-      - CAMUNDA_OPERATE_CLIENT_KEYCLOAK-REALM=camunda-platform
-      - CAMUNDA_OPERATE_CLIENT_URL=http://operate:8080
-    env_file: connector-secrets.txt
-    networks:
-      - camunda-platform
-      - identity-network
-    depends_on:
-      - zeebe
-      - operate
-      - identity
-
-  optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
-    image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION:-8.4.0}
-    container_name: optimize
+      - SPRING_PROFILES_ACTIVE=prod
     ports:
-      - "8083:8090"
-    environment: # https://docs.camunda.io/docs/self-managed/optimize-deployment/setup/installation/#available-environment-variables
-      - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
-      - OPTIMIZE_ELASTICSEARCH_HTTP_PORT=9200
-      - SPRING_PROFILES_ACTIVE=ccsm
-      - CAMUNDA_OPTIMIZE_ZEEBE_ENABLED=true
-      - CAMUNDA_OPTIMIZE_ENTERPRISE=false
-      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_URL=http://localhost:18080/auth/realms/camunda-platform
-      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
-      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTID=optimize
-      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET=Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      - CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE=optimize-api
-      - CAMUNDA_OPTIMIZE_SECURITY_AUTH_COOKIE_SAME_SITE_ENABLED=false
-      - CAMUNDA_OPTIMIZE_UI_LOGOUT_HIDDEN=true
-    volumes:
-      - "./.optimize/environment-config.yaml:/optimize/config/environment-config.yaml"
-    restart: on-failure
-    networks:
-      - camunda-platform
-      - identity-network
+      - "8080:8080"
     depends_on:
+      - connectors
+      - optimize
       - identity
+      - console
+      - keycloak
       - elasticsearch
-
-  identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
-    container_name: identity
-    image: camunda/identity:${CAMUNDA_PLATFORM_VERSION:-8.4.0}
-    ports:
-      - "8084:8084"
-    environment: # https://docs.camunda.io/docs/self-managed/identity/deployment/configuration-variables/
-      SERVER_PORT: 8084
-      IDENTITY_RETRY_DELAY_SECONDS: 30
-      KEYCLOAK_URL: http://keycloak:8080/auth
-      IDENTITY_AUTH_PROVIDER_BACKEND_URL: http://keycloak:8080/auth/realms/camunda-platform
-      KEYCLOAK_INIT_OPERATE_SECRET: Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      KEYCLOAK_INIT_OPERATE_ROOT_URL: http://localhost:8081
-      KEYCLOAK_INIT_TASKLIST_SECRET: Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      KEYCLOAK_INIT_TASKLIST_ROOT_URL: http://localhost:8082
-      KEYCLOAK_INIT_OPTIMIZE_SECRET: Y2FtdW5kYThjYW11bmRhOGNhbXVuZGE4
-      KEYCLOAK_INIT_OPTIMIZE_ROOT_URL: http://localhost:8083
-      KEYCLOAK_INIT_WEBMODELER_ROOT_URL: http://localhost:8070   
-      KEYCLOAK_USERS_0_USERNAME: "demo"
-      KEYCLOAK_USERS_0_PASSWORD: "demo"
-      KEYCLOAK_USERS_0_FIRST_NAME: "demo"
-      KEYCLOAK_USERS_0_EMAIL: "demo@acme.com"
-      KEYCLOAK_USERS_0_ROLES_0: "Identity"
-      KEYCLOAK_USERS_0_ROLES_1: "Optimize"
-      KEYCLOAK_USERS_0_ROLES_2: "Operate"
-      KEYCLOAK_USERS_0_ROLES_3: "Tasklist"
-      KEYCLOAK_USERS_0_ROLES_4: "Web Modeler"
-      KEYCLOAK_CLIENTS_0_NAME: Connectors
-      KEYCLOAK_CLIENTS_0_ID: connectors
-      KEYCLOAK_CLIENTS_0_SECRET: Y2FtdW5kYThjYW11bmRhOA==
-      KEYCLOAK_CLIENTS_0_ROOT_URL: https://localhost:8080
-      KEYCLOAK_CLIENTS_0_REDIRECT_URIS_0: /
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_0_RESOURCE_SERVER_ID: operate-api
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_0_DEFINITION: read:*
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
-      interval: 5s
-      timeout: 15s
-      retries: 30
-      start_period: 60s
-    restart: on-failure
-    volumes:
-      - keycloak-theme:/app/keycloak-theme
-    networks:
-      - identity-network
-    depends_on:
-      keycloak:
-        condition: service_healthy
-
-  postgres: # https://hub.docker.com/_/postgres
-    container_name: postgres
-    image: postgres:${POSTGRES_VERSION:-15.6-alpine}
-    environment:
-      POSTGRES_DB: bitnami_keycloak
-      POSTGRES_USER: bn_keycloak
-      POSTGRES_PASSWORD: "Y2FtdW5kYTg4ODg4ODg4OA=="
-    restart: on-failure
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    networks:
-      - identity-network
-
-  keycloak: # https://hub.docker.com/r/bitnami/keycloak
-    container_name: keycloak
-    image: bitnami/keycloak:${KEYCLOAK_SERVER_VERSION:-22.0.5}
-    volumes:
-      - keycloak-theme:/opt/bitnami/keycloak/themes/identity
-    ports:
-      - "18080:8080"
-    environment:
-      KEYCLOAK_HTTP_RELATIVE_PATH: /auth
-      KEYCLOAK_DATABASE_HOST: postgres
-      KEYCLOAK_DATABASE_PASSWORD: "Y2FtdW5kYTg4ODg4ODg4OA=="
-      KEYCLOAK_ADMIN_USER: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    restart: on-failure
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/auth" ]
-      interval: 30s
-      timeout: 15s
-      retries: 5
-      start_period: 30s
-    networks:
-      - identity-network
-    depends_on:
       - postgres
 
-  elasticsearch: # https://hub.docker.com/_/elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-8.9.2}
-    container_name: elasticsearch
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+  connectors:
+    image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION:-8.8.0}
+    container_name: camunda-connectors
     environment:
-      - bootstrap.memory_lock=true
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      # allow running with low disk space
-      - cluster.routing.allocation.disk.threshold_enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    restart: always
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    volumes:
-      - elastic:/usr/share/elasticsearch/data
-    networks:
-      - camunda-platform
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-8.9.2}
-    container_name: kibana
+      - CONNECTORS_LOG_LEVEL=INFO
     ports:
-      - 5601:5601
-    volumes:
-      - kibana:/usr/share/kibana/data
-    networks:
-      - camunda-platform
+      - "8081:8080"
+
+  identity:
+    image: camunda/identity:${CAMUNDA_IDENTITY_VERSION:-8.8.0}
+    container_name: camunda-identity
+    environment:
+      - IDENTITY_LOG_LEVEL=INFO
+    ports:
+      - "8082:8080"
+
+  optimize:
+    image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION:-8.8.0}
+    container_name: camunda-optimize
+    environment:
+      - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
+      - OPTIMIZE_ELASTICSEARCH_PORT=9200
+    ports:
+      - "8083:8080"
     depends_on:
       - elasticsearch
-    profiles:
-      - kibana
+
+  web-modeler-restapi:
+    image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION:-8.8.0}
+    container_name: camunda-web-modeler-restapi
+    environment:
+      - WEB_MODELER_DB_HOST=web-modeler-db
+      - WEB_MODELER_DB_PORT=5432
+    ports:
+      - "8084:8080"
+    depends_on:
+      - web-modeler-db
+
+  console:
+    image: camunda/console:${CAMUNDA_CONSOLE_VERSION:-8.8.7}
+    container_name: camunda-console
+    environment:
+      - CONSOLE_LOG_LEVEL=INFO
+    ports:
+      - "8085:8080"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-8.17.5}
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  keycloak:
+    image: bitnamilegacy/keycloak:${KEYCLOAK_SERVER_VERSION:-26.3.2}
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/opt/keycloak/import/realm-export.json
+    ports:
+      - "8086:8080"
+
+  mailpit:
+    image: axllent/mailpit:${MAILPIT_VERSION:-v1.21.8}
+    container_name: mailpit
+    ports:
+      - "8025:8025"
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-15-alpine3.22}
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=camunda
+      - POSTGRES_PASSWORD=camunda
+      - POSTGRES_DB=camunda
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  web-modeler-db:
+    image: postgres:${POSTGRES_VERSION:-15-alpine3.22}
+    container_name: web-modeler-db
+    environment:
+      - POSTGRES_USER=webmodeler
+      - POSTGRES_PASSWORD=webmodeler
+      - POSTGRES_DB=webmodeler
+    volumes:
+      - webmodeler-data:/var/lib/postgresql/data
 
 volumes:
-  zeebe:
-  elastic:
-  postgres:
-  keycloak-theme:
-  kibana:
-
-networks:
-  # Note there are two bridge networks: One for Camunda Platform and one for Identity.
-  # Operate, Tasklist, and Optimize use both
-  camunda-platform:
-  identity-network:
+  postgres-data:
+  webmodeler-data:

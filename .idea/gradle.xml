@@ -4,8 +4,10 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="17" />
+        <option name="gradleHome" value="D:\Java\gradle\gradle-9.1.0" />
+        <option name="gradleJvm" value="graalvm-jdk-24" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
